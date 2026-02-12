@@ -2,8 +2,31 @@ module Chess
   class Piece
     attr_reader :color
 
+    SYMBOLS = {
+      white: {
+        pawn: "♙",
+        rook: "♖",
+        knight: "♘",
+        bishop: "♗",
+        queen: "♕",
+        king: "♔"
+      },
+      black: {
+        pawn: "♟",
+        rook: "♜",
+        knight: "♞",
+        bishop: "♝",
+        queen: "♛",
+        king: "♚"
+      }
+    }
+
     def initialize(color)
       @color = color
+    end
+
+    def to_s
+      SYMBOLS[color][type]
     end
 
     def type
