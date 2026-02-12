@@ -10,6 +10,16 @@ module Chess
       setup_pieces
     end
 
+    def to_s
+      display = "  0 1 2 3 4 5 6 7\n"
+      state.each_with_index do |row, index|
+        display += "#{index} "
+        display += row.map { |cell| cell.nil? ? "· " : "#{cell} " }.join("")
+        display += "\n"
+      end
+      display
+    end
+
     private
 
     def setup_pieces

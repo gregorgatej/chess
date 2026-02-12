@@ -23,4 +23,17 @@ describe Chess::Board do
       expect(board.state[1][0].color).to eq(:black)
     end
   end
+
+  describe "#to_s" do
+    it "returns a string representation of the board" do
+      expect(board.to_s).to include("♔")
+      expect(board.to_s).to include("♚")
+      expect(board.to_s).to include("·")
+    end
+
+    it "has row and column labels" do
+      expect(board.to_s).to match(/0 1 2 3 4 5 6 7/)
+      expect(board.to_s).to match(/^0 /)
+    end
+  end
 end
