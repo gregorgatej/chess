@@ -24,6 +24,14 @@ module Chess
       state[pos[0]][pos[1]].nil?
     end
 
+    def same_color?(from, to)
+      from_piece = state[from[0]][from[1]]
+      to_piece = state[to[0]][to[1]]
+
+      return false if to_piece.nil?
+      from_piece.color == to_piece.color
+    end
+
     private
 
     def setup_pieces

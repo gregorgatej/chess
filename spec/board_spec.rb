@@ -47,4 +47,18 @@ describe Chess::Board do
       expect(board.empty?([7, 0])).to be false
     end
   end
+
+  describe "#same_color?" do
+    it "returns true when both squares have pieces of the same color" do
+      expect(board.same_color?([0, 0], [0, 2])).to be true
+    end
+
+    it "returns false when squares have different color pieces" do
+      expect(board.same_color?([0, 0], [7, 0])).to be false
+    end
+
+    it "returns false when destination is empty" do
+      expect(board.same_color?([0, 0], [4, 4])).to be false
+    end
+  end
 end
