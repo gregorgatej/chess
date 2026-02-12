@@ -20,6 +20,10 @@ module Chess
       display
     end
 
+    def empty?(pos)
+      state[pos[0]][pos[1]].nil?
+    end
+
     private
 
     def setup_pieces

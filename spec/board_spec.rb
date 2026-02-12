@@ -36,4 +36,15 @@ describe Chess::Board do
       expect(board.to_s).to match(/^0 /)
     end
   end
+
+  describe "#empty?" do
+    it "returns true for empty squares" do
+      expect(board.empty?([4, 4])).to be true
+    end
+
+    it "returns false for occupied squares" do
+      expect(board.empty?([0, 0])).to be false
+      expect(board.empty?([7, 0])).to be false
+    end
+  end
 end
