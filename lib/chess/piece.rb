@@ -64,6 +64,37 @@ module Chess
     def type
       :rook
     end
+
+    def valid_move?(from, to, board)
+      return false if board.same_color?(from, to)
+
+      from_row, from_col = from
+      to_row, to_col = to
+
+      return false unless from_row == to_row || from_col == to_col
+      path_clear?(from, to, board)
+    end
+
+    private
+
+    def path_clear?(from, to, board)
+      from_row, from_col = from
+      to_row, to_col = to
+
+      row_step = (to_row > from_row) ? 1 : (to_row < from_row) ? -1 : 0
+      col_step = (to_col > from_col) ? 1 : (to_col < from_col) ? -1 : 0
+
+      current_row = from_row + row_step
+      current_col = from_col + col_step
+
+      while [current_row, current_col] != [to_row, to_col]
+        return false unless board.empty?([current_row, current_col])
+        current_row += row_step
+        current_col += col_step
+      end
+
+      true
+    end
   end
 
   class Knight < Piece
