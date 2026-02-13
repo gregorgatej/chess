@@ -32,6 +32,12 @@ module Chess
       from_piece.color == to_piece.color
     end
 
+    def move_piece(from, to)
+      piece = state[from[0]][from[1]]
+      state[to[0]][to[1]] = piece
+      state[from[0]][from[1]] = nil
+    end
+
     private
 
     def setup_pieces

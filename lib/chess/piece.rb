@@ -38,6 +38,26 @@ module Chess
     def type
       :pawn
     end
+
+    def valid_move?(from, to, board)
+      return false if board.same_color?(from, to)
+
+      direction = color == :white ? -1 : 1
+      from_row, from_col = from
+      to_row, to_col = to
+
+      # Forward move
+      if to_col ==from_col && board.empty?(to)
+        if to_row == from_row + direction
+          return true
+        elsif (color == :white && from_row == 6) || (color == :black && from_row == 1)
+          return to_row == from_row + 2 * direction && board.empty?([from_row + direction, from_col])
+        end
+      end
+
+      # Capture diagonally
+      (to_col - from_col).abs == 1 && to_row == from_row + direction && !board.empty?(to)
+    end
   end
 
   class Rook < Piece

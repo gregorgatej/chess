@@ -61,4 +61,20 @@ describe Chess::Board do
       expect(board.same_color?([0, 0], [4, 4])).to be false
     end
   end
+
+  describe "#move_piece" do
+    it "moves a piece from one position to another" do
+      board.move_piece([6, 0], [4, 0])
+      expect(board.state[4][0]).to be_a(Chess::Pawn)
+      expect(board.state[6][0]).to be_nil
+    end
+
+    it "allows capturing opponent pieces" do
+      board.move_piece([6, 0], [5, 0])
+      board.move_piece([1, 0], [3, 0])
+      board.move_piece([5, 0], [4, 0])
+      board.move_piece([3, 0], [4, 0])
+      expect(board.state[4][0].color).to eq(:black)
+    end
+  end
 end
