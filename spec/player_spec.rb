@@ -1,7 +1,7 @@
 require_relative "../lib/chess"
 
 describe Chess::Player do
-  subject(:player) { Chess::Player.new(:white) }
+  subject(:player) { described_class.new(:white) }
 
   describe "#initialize" do
     it "creates a player with a color" do

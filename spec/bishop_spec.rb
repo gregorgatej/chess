@@ -2,7 +2,7 @@ require_relative "../lib/chess"
 
 describe Chess::Bishop do
   let(:board) { Chess::Board.new }
-  subject(:bishop) { Chess::Bishop.new(:white) }
+  subject(:bishop) { described_class.new(:white) }
 
   describe "valid_move?" do
     it "allows diagonal movement" do

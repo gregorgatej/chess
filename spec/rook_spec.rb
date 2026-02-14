@@ -2,7 +2,7 @@ require_relative "../lib/chess"
 
 describe Chess::Rook do
   let(:board) { Chess::Board.new }
-  subject(:rook) { Chess::Rook.new(:white) }
+  subject(:rook) { described_class.new(:white) }
 
   describe "#valid_move?" do
     it "allows horizontal movement" do

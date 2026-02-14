@@ -2,7 +2,7 @@ require_relative "../lib/chess"
 
 describe Chess::Knight do
   let(:board) { Chess::Board.new }
-  subject(:knight) { Chess::Knight.new(:white) }
+  subject(:knight) { described_class.new(:white) }
 
   describe "#valid_move?" do
     it "allows L-shaped move (2 up, 1 right)" do
@@ -16,7 +16,6 @@ describe Chess::Knight do
     end
 
     it "prevents non-L-shaped moves" do
-      knight = Chess::Knight.new(:white)
       board.state[4][4] = knight
       expect(knight.valid_move?([4, 4], [5, 5], board)).to be false
     end
