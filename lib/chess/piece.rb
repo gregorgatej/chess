@@ -155,6 +155,51 @@ module Chess
     def type
       :queen
     end
+
+    def valid_move?(from, to, board)
+      return false if board.same_color?(from, to)
+
+      rook_move = check_rook_move(from, to, board)
+      bishop_move = check_bishop_move(from, to, board)
+      rook_move || bishop_move
+    end
+
+    private
+
+    def check_rook_move(from, to, board)
+      from_row, from_col = from
+      to_row, to_col = to
+
+      return false unless from_row == to_row || from_col == to_col
+      path_clear?(from, to, board)
+    end
+
+    def check_bishop_move(from, to, board)
+      from_row, from_col = from
+      to_row, to_col = to
+
+      return false if (to_row - from_row).abs != (to_col - from_col).abs
+      path_clear?(from, to, board)
+    end
+
+    def path_clear?(from, to, board)
+      from_row, from_col = from
+      to_row, to_col = to
+
+      row_step = (to_row > from_row) ? 1 : (to_row < from_row) ? -1 : 0
+      col_step = (to_col > from_col) ? 1 : (to_col < from_col) ? -1 : 0
+
+      current_row = from_row + row_step
+      current_col = from_col + col_step
+
+      while [current_row, current_col] != [to_row, to_col]
+        return false unless board.empty?([current_row, current_col])
+        current_row += row_step
+        current_col += col_step
+      end
+
+      true
+    end
   end
 
   class King < Piece
