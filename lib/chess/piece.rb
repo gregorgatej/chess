@@ -206,5 +206,16 @@ module Chess
     def type
       :king
     end
+
+    def valid_move?(from, to, board)
+      return false if board.same_color?(from, to)
+      
+      from_row, from_col = from
+      to_row, to_col = to
+      row_diff = (to_row - from_row).abs
+      col_diff = (to_col - from_col).abs
+
+      (row_diff == 1 && col_diff == 0) || (row_diff == 0 && col_diff == 1) || (row_diff == 1 && col_diff == 1)
+    end
   end
 end
