@@ -20,6 +20,15 @@ module Chess
       display
     end
 
+    def valid_move?(from, to)
+      return false unless in_bounds?(from) && in_bounds?(to)
+      return false if from == to
+
+      piece = state[from[0]][from[1]]
+      return false if piece.nil?
+      piece.valid_move?(from, to, self)
+    end
+
     def empty?(pos)
       state[pos[0]][pos[1]].nil?
     end
@@ -39,6 +48,10 @@ module Chess
     end
 
     private
+
+    def in_bounds?(pos)
+      pos[0] >= 0 && pos[0] < ROWS && pos[1] >= 0 && pos[1] < COLS
+    end
 
     def setup_pieces
       # Black pieces on top
