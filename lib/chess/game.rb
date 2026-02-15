@@ -20,7 +20,10 @@ module Chess
         break if input == "exit"
         
         input = input.split
-        next unless valid_input?(input)
+        unless valid_input?(input)
+          puts "Invalid input!"
+          next
+        end
 
         from = input[0].split(",").map(&:to_i)
         to = input[1].split(",").map(&:to_i)
@@ -34,8 +37,26 @@ module Chess
           next
         end
 
+        if board.move_leaves_king_in_check?(from, to, current_player)
+          puts "Invalid move! The king would be in check"
+          next
+        end
+
         board.move_piece(from, to)
-        current_player = current_player == player_white ? player_black : player_white
+
+        opponent = current_player == player_white ? player_black : player_white
+        opponent_king_pos = board.find_king(opponent.color)
+        opponent_king = board.state[opponent_king_pos[0]][opponent_king_pos[1]]
+
+        if opponent_king.in_checkmate?(opponent_king_pos, board)
+          puts "#{opponent} is in checkmate! #{current_player} wins!"
+          puts "\n#{board}"
+          break
+        elsif opponent_king.in_check?(opponent_king_pos, board)
+          puts "#{opponent} is in check!"
+        end
+
+        current_player = opponent
       end
     end
 

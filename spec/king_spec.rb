@@ -68,11 +68,11 @@ describe Chess::King do
     end
 
     it "returns true when king is in checkmate" do
-      board.state[4][4] = white_king
-      board.state[4][6] = black_rook1
-      board.state[6][4] = black_rook2
+      board.state[7][4] = white_king
+      board.state[7][0] = black_rook1
+      board.state[6][0] = black_rook2
       
-      expect(white_king.in_checkmate?([4, 4], board)).to be true
+      expect(white_king.in_checkmate?([7, 4], board)).to be true
     end
 
     it "returns false when king is in check but can escape" do

@@ -217,5 +217,47 @@ module Chess
 
       (row_diff == 1 && col_diff == 0) || (row_diff == 0 && col_diff == 1) || (row_diff == 1 && col_diff == 1)
     end
+
+    def in_check?(king_pos, board)
+      opponent_color = color == :white ? :black : :white
+      board.state.each_with_index do |row, r|
+        row.each_with_index do |piece, c|
+          next if piece.nil? || piece.color != opponent_color
+          return true if piece.valid_move?([r, c], king_pos, board)
+        end
+      end
+      false
+    end
+
+    def in_checkmate?(king_pos, board)
+      return false unless in_check?(king_pos, board)
+
+      # Try all possible king moves
+      (-1..1).each do |row_delta|
+        (-1..1).each do |col_delta|
+          next if row_delta == 0 && col_delta == 0
+          new_pos = [king_pos[0] + row_delta, king_pos[1] + col_delta]
+          next unless new_pos[0] >= 0 && new_pos[0] < 8 && new_pos[1] >= 0 && new_pos[1] < 8
+          next unless valid_move?(king_pos, new_pos, board)
+
+          # Simulate the move
+          original_square_state = board.state[new_pos[0]][new_pos[1]]
+          board.state[new_pos[0]][new_pos[1]] = board.state[king_pos[0]][king_pos[1]]
+          board.state[king_pos[0]][king_pos[1]] = nil
+
+          # Check if still in check after move
+          still_in_check = in_check?(new_pos, board)
+
+          # Undo the move
+          board.state[king_pos[0]][king_pos[1]] = board.state[new_pos[0]][new_pos[1]]
+          board.state[new_pos[0]][new_pos[1]] = original_square_state
+
+          return false unless still_in_check
+        end
+      end
+
+      # No escape moves found
+      true
+    end
   end
 end

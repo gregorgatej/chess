@@ -99,7 +99,63 @@ describe Chess::Board do
     end
 
     it "returns false when moving opponent's figure" do
-      expect(board.valid_move?([0,1], [0,2], current_player)).to be false
+      expect(board.valid_move?([0, 1], [0, 2], current_player)).to be false
+    end
+  end
+
+  describe "#find_king" do
+  it "finds the white king on the board" do
+    king_pos = board.find_king(:white)
+    expect(king_pos).to eq([7, 4])
+    expect(board.state[7][4]).to be_a(Chess::King)
+    expect(board.state[7][4].color).to eq(:white)
+  end
+
+  it "finds the black king on the board" do
+    king_pos = board.find_king(:black)
+    expect(king_pos).to eq([0, 4])
+    expect(board.state[0][4]).to be_a(Chess::King)
+    expect(board.state[0][4].color).to eq(:black)
+  end
+
+  it "finds the king after it has been moved" do
+    white_king = board.state[7][4]
+    board.state[4][4] = white_king
+    board.state[7][4] = nil
+
+    king_pos = board.find_king(:white)
+    expect(king_pos).to eq([4, 4])
+  end
+
+  it "returns nil if no king is found" do
+    # Remove all kings
+    board.state[7][4] = nil
+    board.state[0][4] = nil
+
+    white_king_pos = board.find_king(:white)
+    black_king_pos = board.find_king(:black)
+    expect(white_king_pos).to be_nil
+    expect(black_king_pos).to be_nil
+  end
+end
+
+  describe "#move_leaves_king_in_check?" do
+    let(:white_king) { Chess::King.new(:white) }
+    let(:black_rook) { Chess::Rook.new(:black) }
+    let(:white_player) { Chess::Player.new(:white) }
+
+    it "returns true when king remains in check after move" do
+      board.state[4][4] = white_king
+      board.state[4][1] = black_rook
+
+      expect(board.move_leaves_king_in_check?([4, 4], [4, 3], white_player)).to be true
+    end
+
+    it "returns false when king doesn't remain in check after move" do
+      board.state[4][4] = white_king
+      board.state[4][1] = black_rook
+
+      expect(board.move_leaves_king_in_check?([4, 4], [3, 4], white_player)).to be false
     end
   end
 end

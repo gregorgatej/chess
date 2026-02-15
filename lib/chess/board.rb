@@ -48,6 +48,35 @@ module Chess
       state[from[0]][from[1]] = nil
     end
 
+    def find_king(color)
+      state.each_with_index do |row, r|
+        row.each_with_index do |piece, c|
+          return [r, c] if piece.is_a?(King) && piece.color == color
+        end
+      end
+
+      nil
+    end
+
+    def move_leaves_king_in_check?(from, to, player)
+      piece = state[from[0]][from[1]]
+      return false unless piece.is_a?(Chess::King)
+
+      # Simulate the move
+      original_square_state = state[to[0]][to[1]]
+      state[to[0]][to[1]] = piece
+      state[from[0]][from[1]] = nil
+
+      # Check if king is in check at new position
+      in_check = piece.in_check?(to, self)
+
+      # Undo the move
+      state[from[0]][from[1]] = piece
+      state[to[0]][to[1]] = original_square_state
+
+      in_check
+    end
+
     private
 
     def in_bounds?(pos)
