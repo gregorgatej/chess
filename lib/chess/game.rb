@@ -29,7 +29,7 @@ module Chess
         from = [from[1], from[0]]
         to = [to[1], to[0]]
 
-        unless board.valid_move?(from, to)
+        unless board.valid_move?(from, to, current_player)
           puts "Invalid move!"
           next
         end

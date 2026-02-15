@@ -79,21 +79,27 @@ describe Chess::Board do
   end
 
   describe "#valid_move?" do
+  let(:current_player) { Chess::Player.new(:white) }
+
     it "returns false for moves outside board bounds" do
-      expect(board.valid_move?([-1, 0], [0, 0])).to be false
-      expect(board.valid_move?([0, 0], [8, 0])).to be false
+      expect(board.valid_move?([-1, 0], [0, 0], current_player)).to be false
+      expect(board.valid_move?([0, 0], [8, 0], current_player)).to be false
     end
 
     it "returns false for same position" do
-      expect(board.valid_move?([0, 0], [0, 0])).to be false
+      expect(board.valid_move?([0, 0], [0, 0], current_player)).to be false
     end
 
     it "returns false for empty square" do
-      expect(board.valid_move?([4, 4], [5, 5])).to be false
+      expect(board.valid_move?([4, 4], [5, 5], current_player)).to be false
     end
 
     it "returns false for capturing own piece" do
-      expect(board.valid_move?([0, 0], [0, 1])).to be false
+      expect(board.valid_move?([0, 0], [0, 1], current_player)).to be false
+    end
+
+    it "returns false when moving opponent's figure" do
+      expect(board.valid_move?([0,1], [0,2], current_player)).to be false
     end
   end
 end

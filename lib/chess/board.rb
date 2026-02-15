@@ -20,12 +20,13 @@ module Chess
       display
     end
 
-    def valid_move?(from, to)
+    def valid_move?(from, to, current_player)
       return false unless in_bounds?(from) && in_bounds?(to)
       return false if from == to
 
       piece = state[from[0]][from[1]]
       return false if piece.nil?
+      return false if piece.color != current_player.color
       piece.valid_move?(from, to, self)
     end
 
