@@ -36,7 +36,6 @@ module Chess
       if File.exist? SAVED_GAME_PATH
         puts "Do you want to load previously saved game? (y/n)" 
         load_game if gets.chomp.downcase == "y"
-        require "pry-byebug"; binding.pry
       end
 
       loop do
