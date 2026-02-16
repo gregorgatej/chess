@@ -1,15 +1,44 @@
 module Chess
   class Game
-    attr_reader :board, :player_white, :player_black
+    SAVED_GAME_PATH = "./data/saved_game.json"
+
+    attr_reader :board, :player_white, :player_black, :current_player
 
     def initialize
       @board = Board.new
       @player_white = Player.new(:white)
       @player_black = Player.new(:black)
+      @current_player = player_white
+      @skip_save_prompt = false
+    end
+
+    def saved_game
+      f = File.new SAVED_GAME_PATH, "w+"
+      data = JSON.dump({
+        board: board,
+        current_player: current_player,
+      })
+      f.write(data)
+      f.close
+      puts "Successfully written data to disk."
+    end
+
+    def load_game
+      data = JSON.load(File.read(SAVED_GAME_PATH))
+      @board = data["board"]
+      @player_white = Player.new(:white)
+      @player_black = Player.new(:black)
+      @current_player = data["current_player"] == player_white.to_s ? player_white : player_black
+      @skip_save_prompt = true
+      puts "Game successfully loaded.\n"
     end
 
     def play
-      current_player = player_white
+      puts "Welcome to the game of chess!"
+      if File.exist? SAVED_GAME_PATH
+        puts "Do you want to load previously saved game? (y/n)" 
+        load_game if gets.chomp.downcase == "y"
+      end
 
       loop do
         puts "\n#{board}"
@@ -56,11 +85,19 @@ module Chess
           puts "#{opponent} is in check!"
         end
 
-        current_player = opponent
+        self.current_player = opponent
+
+        unless skip_save_prompt
+          puts "Do you want to save the game? (y/n)"
+          saved_game if gets.chomp.downcase == "y"
+        end
       end
     end
 
     private
+
+    attr_reader :skip_save_prompt
+    attr_writer :current_player
 
     def valid_input?(input)
       input.length == 2 && input.all? { |pos| pos.split(",").length == 2 }
