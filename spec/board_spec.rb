@@ -158,4 +158,32 @@ end
       expect(board.move_leaves_king_in_check?([4, 4], [3, 4], white_player)).to be false
     end
   end
+
+  describe "#to_h" do
+  let(:hash) { board.to_h }
+
+    it "returns a hash representation of the board" do
+      expect(hash).to have_key(:state)
+      expect(hash[:state]).to be_an(Array)
+      expect(hash[:state].length).to eq(8)
+    end
+
+    it "serializes pieces as hashes with type and color" do
+      white_pawn = hash[:state][6][0]
+      expect(white_pawn).to eq({ type: :pawn, color: :white })
+    end
+
+    it "serializes empty squares as nil" do
+      hash = board.to_h
+      expect(hash[:state][4][4]).to be_nil
+    end
+  end
+
+  describe "self.from_h" do
+    it "reconstructs a board from a hash" do
+      original_hash = board.to_h
+      new_board = Chess::Board.from_h(original_hash)
+      expect(new_board.to_h).to eq(original_hash)
+    end
+  end
 end

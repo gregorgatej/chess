@@ -32,16 +32,19 @@ module Chess
 
     def self.from_h(hash)
       board = new
-      board.state = hash["state"].map do |row|
+      state_data = hash[:state] || hash["state"]
+      board.state = state_data.map do |row|
         row.map do |piece_data|
           next nil if piece_data.nil?
-          case piece_data["type"].to_sym
-          when :pawn then Pawn.new(piece_data["color"].to_sym)
-          when :rook then Rook.new(piece_data["color"].to_sym)
-          when :knight then Knight.new(piece_data["color"].to_sym)
-          when :bishop then Bishop.new(piece_data["color"].to_sym)
-          when :queen then Queen.new(piece_data["color"].to_sym)
-          when :king then King.new(piece_data["color"].to_sym)
+          type = piece_data[:type] || piece_data["type"]
+          color = piece_data[:color] || piece_data["color"]
+          case type.to_sym
+          when :pawn then Pawn.new(color.to_sym)
+          when :rook then Rook.new(color.to_sym)
+          when :knight then Knight.new(color.to_sym)
+          when :bishop then Bishop.new(color.to_sym)
+          when :queen then Queen.new(color.to_sym)
+          when :king then King.new(color.to_sym)
           end
         end
       end
