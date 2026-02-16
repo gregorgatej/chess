@@ -27,4 +27,59 @@ describe Chess::Game do
       game.play
     end
   end
+
+  describe "#save_game and #load_game" do
+    let(:save_path) { "./data/saved_game.json" }
+
+    before do
+      # Clean up any existing save file
+      File.delete(save_path) if File.exist?(save_path)
+    end
+
+    after do
+      # Clean up after tests
+      File.delete(save_path) if File.exist?(save_path)
+    end
+
+    it "saves the current player to the game file" do
+      game = Chess::Game.new
+      allow(game).to receive(:puts)
+      game.save_game
+      
+      data = JSON.load(File.read(save_path))
+      expect(data["current_player"]).to eq("White Player")
+    end
+
+    it "loads the correct current player from the saved game" do
+      allow(game).to receive(:puts)
+
+      game = Chess::Game.new
+      allow(game).to receive(:puts)
+      # Simulate switching to black player
+      game.send(:current_player=, game.player_black)
+      game.save_game
+      
+      new_game = Chess::Game.new
+      allow(new_game).to receive(:puts)
+      new_game.load_game
+      expect(new_game.current_player.to_s).to eq("Black Player")
+    end
+
+    it "restores the full game state including board and current player" do
+      allow(game).to receive(:puts)
+
+      game = Chess::Game.new
+      allow(game).to receive(:puts)
+      game.board.move_piece([6, 0], [4, 0])
+      game.send(:current_player=, game.player_black)
+      game.save_game
+
+      new_game = Chess::Game.new
+      allow(new_game).to receive(:puts)
+      new_game.load_game
+      expect(new_game.board.state[4][0]).to be_a(Chess::Pawn)
+      expect(new_game.board.state[6][0]).to be_nil
+      expect(new_game.current_player.to_s).to eq("Black Player")
+    end
+  end
 end

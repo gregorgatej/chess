@@ -179,11 +179,26 @@ end
     end
   end
 
-  describe "self.from_h" do
+  describe ".from_h" do
     it "reconstructs a board from a hash" do
       original_hash = board.to_h
       new_board = Chess::Board.from_h(original_hash)
       expect(new_board.to_h).to eq(original_hash)
+    end
+
+    it "recreates pieces with correct types and colors" do
+      new_board = Chess::Board.from_h(board.to_h)
+      expect(new_board.state[6][0]).to be_a(Chess::Pawn)
+      expect(new_board.state[6][0].color).to eq(:white)
+      expect(new_board.state[0][0]).to be_a(Chess::Rook)
+      expect(new_board.state[0][0].color).to eq(:black)
+    end
+
+    it "preserves board state after serialization and deserialization" do
+      board.move_piece([6, 0], [4, 0])
+      new_board = Chess::Board.from_h(board.to_h)
+      expect(new_board.state[4][0]).to be_a(Chess::Pawn)
+      expect(new_board.state[6][0]).to be_nil
     end
   end
 end
