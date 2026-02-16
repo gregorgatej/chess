@@ -12,20 +12,18 @@ module Chess
       @skip_save_prompt = false
     end
 
-    def saved_game
+    def save_game
       f = File.new SAVED_GAME_PATH, "w+"
-      data = JSON.dump({
-        board: board,
-        current_player: current_player,
-      })
-      f.write(data)
+      data = board.to_h
+      data["current_player"] = current_player.to_s
+      f.write(JSON.dump(data))
       f.close
       puts "Successfully written data to disk."
     end
 
     def load_game
       data = JSON.load(File.read(SAVED_GAME_PATH))
-      @board = data["board"]
+      @board = Board.from_h(data)
       @player_white = Player.new(:white)
       @player_black = Player.new(:black)
       @current_player = data["current_player"] == player_white.to_s ? player_white : player_black
@@ -38,6 +36,7 @@ module Chess
       if File.exist? SAVED_GAME_PATH
         puts "Do you want to load previously saved game? (y/n)" 
         load_game if gets.chomp.downcase == "y"
+        require "pry-byebug"; binding.pry
       end
 
       loop do
@@ -89,7 +88,7 @@ module Chess
 
         unless skip_save_prompt
           puts "Do you want to save the game? (y/n)"
-          saved_game if gets.chomp.downcase == "y"
+          save_game if gets.chomp.downcase == "y"
         end
       end
     end

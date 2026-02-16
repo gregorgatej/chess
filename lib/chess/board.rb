@@ -20,6 +20,35 @@ module Chess
       display
     end
 
+    def to_h
+      {
+        state: state.map do |row|
+          row.map do |piece|
+            piece.nil? ? nil : { type: piece.type, color: piece.color }
+          end
+        end
+      }
+    end
+
+    def self.from_h(hash)
+      board = new
+      board.state = hash["state"].map do |row|
+        row.map do |piece_data|
+          next nil if piece_data.nil?
+          case piece_data["type"].to_sym
+          when :pawn then Pawn.new(piece_data["color"].to_sym)
+          when :rook then Rook.new(piece_data["color"].to_sym)
+          when :knight then Knight.new(piece_data["color"].to_sym)
+          when :bishop then Bishop.new(piece_data["color"].to_sym)
+          when :queen then Queen.new(piece_data["color"].to_sym)
+          when :king then King.new(piece_data["color"].to_sym)
+          end
+        end
+      end
+
+      board
+    end
+
     def valid_move?(from, to, current_player)
       return false unless in_bounds?(from) && in_bounds?(to)
       return false if from == to
