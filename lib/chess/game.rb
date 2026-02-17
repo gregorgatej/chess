@@ -9,7 +9,6 @@ module Chess
       @player_white = Player.new(:white)
       @player_black = Player.new(:black)
       @current_player = player_white
-      @skip_save_prompt = false
       @game_type = nil
     end
 
@@ -21,6 +20,7 @@ module Chess
       loop do
         display_board_and_turn
         move = get_move_for_current_player
+        break if move.nil?
         
         board.move_piece(move[:from], move[:to])
 
@@ -29,13 +29,10 @@ module Chess
         end
 
         @current_player = current_player == player_white ? player_black : player_white
-        prompt_to_save_game
       end
     end
 
     private
-
-    attr_reader :skip_save_prompt
 
     def save_game
       f = File.new SAVED_GAME_PATH, "w+"
@@ -60,7 +57,6 @@ module Chess
       @player_black = black_type == "computer" ? ComputerPlayer.new(:black) : Player.new(:black)
 
       @current_player = data["current_player"] == player_white.to_s ? player_white : player_black
-      @skip_save_prompt = true
       puts "Game successfully loaded.\n"
     end
 
@@ -120,11 +116,15 @@ module Chess
     end
 
     def get_human_move
-      puts "Enter move (e.g., '4,6 4,4' for col,row from-to) or 'exit' to quit:"
-
       loop do
+        puts "Enter move (e.g., '4,6 4,4' for col,row from-to), 'save' to save the game or 'exit' to quit:"
         input = gets.chomp
+
         return nil if input == "exit"
+        if input == "save"
+          save_game
+          next
+        end
 
         input = input.split
         unless valid_input?(input)
@@ -165,13 +165,6 @@ module Chess
       end
 
       false
-    end
-
-    def prompt_to_save_game
-      unless skip_save_prompt
-        puts "Do you want to save the game? (y/n)"
-        save_game if gets.chomp.downcase == "y"
-      end
     end
 
     def valid_input?(input)
