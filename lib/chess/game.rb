@@ -83,7 +83,7 @@ module Chess
           puts "#{opponent} is in check!"
         end
 
-        self.current_player = opponent
+        @current_player = opponent
 
         unless skip_save_prompt
           puts "Do you want to save the game? (y/n)"
