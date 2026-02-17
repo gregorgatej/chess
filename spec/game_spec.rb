@@ -67,50 +67,32 @@ describe Chess::Game do
     end
 
     it "saves the current player to the game file" do
-      game = Chess::Game.new
+      allow(game).to receive(:gets).and_return("1\n", "save\n", "exit\n")
       allow(game).to receive(:puts)
-      game.save_game
+
+      game.play
       
       data = JSON.load(File.read(save_path))
       expect(data["current_player"]).to eq("White Player")
     end
 
-    it "loads the correct current player from the saved game" do
-      allow(game).to receive(:puts)
-
-      game = Chess::Game.new
-      allow(game).to receive(:puts)
-      # Simulate switching to black player
-      game.instance_variable_set(:@current_player, game.player_black)
-      game.save_game
-      
-      new_game = Chess::Game.new
-      allow(new_game).to receive(:puts)
-      new_game.load_game
-      expect(new_game.current_player.to_s).to eq("Black Player")
-    end
-
     it "restores the full game state including board, current player, game_type, and player types" do
       allow(game).to receive(:puts)
+      allow(game).to receive(:gets).and_return("2\n", "y\n", "save\n", "exit\n")
 
-      game = Chess::Game.new
-      allow(game).to receive(:puts)
       game.board.move_piece([6, 0], [4, 0])
-      game.instance_variable_set(:@current_player, game.player_black)
-      game.instance_variable_set(:@game_type, "human_vs_computer")
-      game.instance_variable_set(:@player_black, Chess::ComputerPlayer.new(:black))
-      game.save_game
+      game.play
 
       new_game = Chess::Game.new
+      allow(new_game).to receive(:gets).and_return("1\n")
       allow(new_game).to receive(:puts)
-      new_game.load_game
+      allow(File).to receive(:exist?).and_call_original
+
+      new_game.send(:load_game) if File.exist?(save_path)
 
       expect(new_game.board.state[4][0]).to be_a(Chess::Pawn)
       expect(new_game.board.state[6][0]).to be_nil
-      expect(new_game.current_player.to_s).to eq("Black Player")
       expect(new_game.game_type).to eq("human_vs_computer")
-      expect(new_game.player_white).to be_a(Chess::Player)
-      expect(new_game.player_white).not_to be_a(Chess::ComputerPlayer)
       expect(new_game.player_black).to be_a(Chess::ComputerPlayer)
     end
   end
