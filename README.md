@@ -1,6 +1,6 @@
 # Chess
 
-A command-line implementation of Chess in Ruby.
+A command-line implementation of Chess in Ruby
 
 ## Features
 
