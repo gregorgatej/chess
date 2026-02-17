@@ -13,6 +13,30 @@ module Chess
       @game_type = nil
     end
 
+    def play
+      puts "Welcome to the game of Chess!"
+      initialize_game
+      choose_game_type unless @game_type
+
+      loop do
+        display_board_and_turn
+        move = get_move_for_current_player
+        
+        board.move_piece(move[:from], move[:to])
+
+        if resolve_turn(move[:from], move[:to])
+          break
+        end
+
+        @current_player = current_player == player_white ? player_black : player_white
+        prompt_to_save_game
+      end
+    end
+
+    private
+
+    attr_reader :skip_save_prompt
+
     def save_game
       f = File.new SAVED_GAME_PATH, "w+"
       data = board.to_h
@@ -40,90 +64,12 @@ module Chess
       puts "Game successfully loaded.\n"
     end
 
-    def play
-      puts "Welcome to the game of Chess!"
+    def initialize_game
       if File.exist? SAVED_GAME_PATH
         puts "Do you want to load previously saved game? (y/n)" 
         load_game if gets.chomp.downcase == "y"
       end
-
-      unless @game_type
-        choose_game_type
-      end
-
-      loop do
-        puts "\n#{board}"
-        puts "#{current_player}'s turn"
-
-        if current_player.is_a?(ComputerPlayer)
-          puts "Computer is thinking..."
-          sleep(1)
-          move = current_player.make_move(board)
-          
-          if move.nil?
-            puts "Computer has no legal moves!"
-            break
-          end
-
-          from = move[:from]
-          to = move[:to]
-          puts "Computer moves: #{from} to #{to}"
-        else
-          puts "Enter move (e.g., '4,6 4,4' for col,row from-to) or 'exit' to quit:"
-
-          input = gets.chomp
-          break if input == "exit"
-          
-          input = input.split
-          unless valid_input?(input)
-            puts "Invalid input!"
-            next
-          end
-
-          from = input[0].split(",").map(&:to_i)
-          to = input[1].split(",").map(&:to_i)
-
-          # Convert from col,row to row,col for internal use
-          from = [from[1], from[0]]
-          to = [to[1], to[0]]
-
-          unless board.valid_move?(from, to, current_player)
-            puts "Invalid move!"
-            next
-          end
-        end
-
-        if board.move_leaves_king_in_check?(from, to, current_player)
-          puts "Invalid move! The king would be in check"
-          next
-        end
-
-        board.move_piece(from, to)
-
-        opponent = current_player == player_white ? player_black : player_white
-        opponent_king_pos = board.find_king(opponent.color)
-        opponent_king = board.state[opponent_king_pos[0]][opponent_king_pos[1]]
-
-        if opponent_king.in_checkmate?(opponent_king_pos, board)
-          puts "#{opponent} is in checkmate! #{current_player} wins!"
-          puts "\n#{board}"
-          break
-        elsif opponent_king.in_check?(opponent_king_pos, board)
-          puts "#{opponent} is in check!"
-        end
-
-        @current_player = opponent
-
-        unless skip_save_prompt
-          puts "Do you want to save the game? (y/n)"
-          save_game if gets.chomp.downcase == "y"
-        end
-      end
     end
-
-    private
-
-    attr_reader :skip_save_prompt
 
     def choose_game_type
       puts "\nChoose game mode:"
@@ -148,6 +94,83 @@ module Chess
       else
         puts "Invalid choice. Defaulting to Human vs Human."
         @game_type = "human_vs_human"
+      end
+    end
+
+    def display_board_and_turn
+      puts "\n#{board}"
+      puts "#{current_player}'s turn"
+    end
+
+    def get_move_for_current_player
+      if current_player.is_a?(ComputerPlayer)
+        get_computer_move
+      else
+        get_human_move
+      end
+    end
+
+    def get_computer_move
+      puts "Computer is thinking..."
+      sleep(1)
+      move = current_player.make_move(board)
+
+      puts "Computer moves: #{move[:from]} to #{move[:to]}"
+      move
+    end
+
+    def get_human_move
+      puts "Enter move (e.g., '4,6 4,4' for col,row from-to) or 'exit' to quit:"
+
+      loop do
+        input = gets.chomp
+        return nil if input == "exit"
+
+        input = input.split
+        unless valid_input?(input)
+          puts "Invalid input!"
+          next
+        end
+      
+        from = input[0].split(",").map(&:to_i)
+        to = input[1].split(",").map(&:to_i)
+        from = [from[1], from[0]]
+        to = [to[1], to[0]]
+      
+        unless board.valid_move?(from, to, current_player)
+          puts "Invalid move!"
+          next
+        end
+      
+        if board.move_leaves_king_in_check?(from, to, current_player)
+          puts "Invalid move! The king would be in check"
+          next
+        end
+      
+        return { from: from, to: to }
+      end
+    end
+
+    def resolve_turn(from, to)
+      opponent = current_player == player_white ? player_black : player_white
+      opponent_king_pos = board.find_king(opponent.color)
+      opponent_king = board.state[opponent_king_pos[0]][opponent_king_pos[1]]
+
+      if opponent_king.in_checkmate?(opponent_king_pos, board)
+        puts "#{opponent} is in checkmate! #{current_player} wins!"
+        puts "\n#{board}"
+        return true
+      elsif opponent_king.in_check?(opponent_king_pos, board)
+        puts "#{opponent} is in check!"
+      end
+
+      false
+    end
+
+    def prompt_to_save_game
+      unless skip_save_prompt
+        puts "Do you want to save the game? (y/n)"
+        save_game if gets.chomp.downcase == "y"
       end
     end
 
